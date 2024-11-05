@@ -138,7 +138,7 @@ function Uploader() {
         gap: "8px",
       }}
     >
-      <h3>RESET SAMPLE DATA</h3>
+      <h4 style={{ color: "black" }}>RESET SAMPLE DATA</h4>
 
       <Button onClick={uploadAll} disabled={isLoading}>
         Upload ALL
