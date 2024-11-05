@@ -5,6 +5,7 @@ import Input from "../../ui/Input";
 import FormRowVertical from "../../ui/FormRowVertical";
 import { useLogin } from "./useLogin";
 import SpinnerMini from "../../ui/SpinnerMini";
+import { Link } from "react-router-dom";
 
 function LoginForm() {
   const [email, setEmail] = useState("");
@@ -52,6 +53,14 @@ function LoginForm() {
         <Button size="large" disabled={isLoading}>
           {!isLoading ? "Log in" : <SpinnerMini />}
         </Button>
+      </FormRowVertical>
+      <FormRowVertical>
+        <p style={{ textAlign: "center" }}>
+          Don&apos;t have an account? Register{" "}
+          <Link style={{ color: "#0000ff" }} to="/users">
+            here.
+          </Link>
+        </p>
       </FormRowVertical>
     </Form>
   );

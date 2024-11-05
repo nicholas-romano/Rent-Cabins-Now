@@ -4,10 +4,13 @@ import Form from "../../ui/Form";
 import FormRow from "../../ui/FormRow";
 import Input from "../../ui/Input";
 import { useSignup } from "./useSignup";
+import Heading from "../../ui/Heading";
+import { useNavigate } from "react-router-dom";
 
 // Email regex: /\S+@\S+\.\S+/
 
 function SignupForm() {
+  const navigate = useNavigate();
   const { signup, isLoading } = useSignup();
   const {
     register,
@@ -27,8 +30,15 @@ function SignupForm() {
     );
   }
 
+  function CancelSignUp(e) {
+    e.preventDefault();
+    reset();
+    navigate("/login", { replace: true });
+  }
+
   return (
     <Form onSubmit={handleSubmit(onSubmit, onValid)}>
+      <Heading as="h1">Register a new user</Heading>
       <FormRow label="Full name" error={errors?.fullName?.message}>
         <Input
           type="text"
@@ -89,7 +99,7 @@ function SignupForm() {
           variation="secondary"
           type="reset"
           disabled={isLoading}
-          onClick={reset}
+          onClick={CancelSignUp}
         >
           Cancel
         </Button>
