@@ -1,13 +1,13 @@
 import styled from "styled-components";
 import Tag from "../../ui/Tag";
-import { Flag } from "../../ui/Flag";
 import Button from "../../ui/Button";
 import { Link } from "react-router-dom";
 import CheckoutButton from "./CheckoutButton";
 
 const StyledTodayItem = styled.li`
   display: grid;
-  grid-template-columns: 9rem 2rem 1fr 7rem 9rem;
+  /* grid-template-columns: 9rem 2rem 1fr 7rem 9rem; */
+  grid-template-columns: 10rem 12rem auto 10rem;
   gap: 1.2rem;
   align-items: center;
 
@@ -31,7 +31,6 @@ function TodayItem({ activity }) {
       {status === "unconfirmed" && <Tag type="green">Arriving</Tag>}
       {status === "checked-in" && <Tag type="blue">Departing</Tag>}
 
-      <Flag src={guests.countryFlag} alt={`Flag of ${guests.country}`} />
       <Guest>{guests.fullName}</Guest>
       <div>{numNights} nights</div>
       {status === "unconfirmed" && (

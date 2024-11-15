@@ -17,6 +17,7 @@ import Booking from "./pages/Booking";
 import Checkin from "./pages/Checkin";
 import ProtectedRoute from "./ui/ProtectedRoute";
 import { DarkModeProvider } from "./context/DarkModeContext";
+import CreateBookingForm from "./features/bookings/CreateBookingForm";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -45,6 +46,10 @@ function App() {
               <Route index element={<Navigate replace to="/dashboard" />} />
               <Route path="/dashboard" element={<Dashoard />} />
               <Route path="/bookings" element={<Bookings />} />
+              <Route
+                path="/bookings/create-new-booking"
+                element={<CreateBookingForm />}
+              />
               <Route path="/bookings/:bookingId" element={<Booking />} />
               <Route path="/checkin/:bookingId" element={<Checkin />} />
               <Route path="/cabins" element={<Cabins />} />

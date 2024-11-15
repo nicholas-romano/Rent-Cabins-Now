@@ -11,6 +11,58 @@ export async function getCabins() {
   return data;
 }
 
+export async function getAvailableCabins(numGuests, startDate, endDate) {
+  //Find available cabins
+  const { data: maxCapacityCabins, error: maxCapacityError } = await supabase
+    .from("cabins")
+    .select("*")
+    .gte("maxCapacity", numGuests);
+
+  //console.log("maxCapacityCabins ", maxCapacityCabins);
+
+  let availableCabinsList = [];
+
+  for (let i = 0; i < maxCapacityCabins.length; i++) {
+    const cabinId = maxCapacityCabins[i].id;
+
+    let cabinAvailable = true;
+
+    //console.log("id: ", maxCapacityCabins[i].id);
+    const { data: cabinIdList, error: cabinIdError } = await supabase
+      .from("bookings")
+      .select("*")
+      .eq("cabinId", cabinId);
+
+    for (let k = 0; k < cabinIdList.length; k++) {
+      const cabinStartDate = cabinIdList[k].startDate;
+      const cabinStartDateTimeStamp = Date.parse(cabinStartDate);
+      const cabinEndDate = cabinIdList[k].endDate;
+      const cabinEndDateTimeStamp = Date.parse(cabinEndDate);
+
+      if (
+        (startDate >= cabinStartDateTimeStamp &&
+          startDate <= cabinEndDateTimeStamp) ||
+        (endDate >= cabinStartDateTimeStamp && endDate <= cabinEndDateTimeStamp)
+      ) {
+        cabinAvailable = false;
+      }
+    }
+
+    if (cabinAvailable === true) {
+      availableCabinsList.push(maxCapacityCabins[i]);
+    }
+
+    //console.log("cabinIdList ", cabinIdList);
+  }
+
+  if (maxCapacityError) {
+    console.error(maxCapacityError);
+    throw new Error("Available cabins could not be loaded.");
+  }
+
+  return availableCabinsList;
+}
+
 export async function createEditCabin(newCabin, id) {
   //console.log(newCabin, id);
   const hasImagePath = newCabin.image?.startsWith?.(supabaseUrl);

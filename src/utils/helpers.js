@@ -1,5 +1,20 @@
-import { formatDistance, parseISO } from "date-fns";
+import { add, formatDistance, parseISO } from "date-fns";
 import { differenceInDays } from "date-fns";
+
+export function fromToday(numDays, withTime = false) {
+  const date = add(new Date(), { days: numDays });
+  if (!withTime) date.setUTCHours(0, 0, 0, 0);
+  return date.toISOString().slice(0, -1);
+}
+
+export function getUTCDate(dateString) {
+  const date = new Date(dateString);
+
+  // Set to the last second of the day
+  date.setUTCHours(23, 59, 59, 999);
+  date.setUTCHours(0, 0, 0, 0);
+  return date.toISOString();
+}
 
 // We want to make this function work for both Date objects and strings (which come from Supabase)
 export const subtractDates = (dateStr1, dateStr2) =>
@@ -24,7 +39,20 @@ export const getToday = function (options = {}) {
   return today.toISOString();
 };
 
+export const getCurrentDateTime = function () {
+  return new Date().toUTCString();
+};
+
+export const getDate = (timestamp) => {
+  const datetime = new Date(timestamp);
+  return datetime.toLocaleDateString();
+};
+
 export const formatCurrency = (value) =>
   new Intl.NumberFormat("en", { style: "currency", currency: "USD" }).format(
     value
   );
+
+export const getLengthOfStay = (startDate, endDate) => {
+  return differenceInDays(new Date(endDate), new Date(startDate));
+};

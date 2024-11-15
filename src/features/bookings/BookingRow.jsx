@@ -46,20 +46,14 @@ const Amount = styled.div`
   font-weight: 500;
 `;
 
-function BookingRow({
-  booking: {
-    id: bookingId,
-    created_at,
-    startDate,
-    endDate,
-    numNights,
-    numGuests,
-    totalPrice,
-    status,
-    guests: { fullName: guestName, email },
-    cabins: { name: cabinName },
-  },
-}) {
+function BookingRow({ booking }) {
+  const { id, startDate, endDate, numGuests, numNights, status, totalPrice } =
+    booking;
+
+  const { fullName, email } = booking.guests;
+  const { name } = booking.cabins;
+
+  //console.log("booking ", booking);
   const navigate = useNavigate();
   const { checkout, isCheckingOut } = useCheckout();
   const { deleteBooking, isDeleting } = useDeleteBooking();
@@ -72,18 +66,16 @@ function BookingRow({
 
   return (
     <Table.Row>
-      <Cabin>{cabinName}</Cabin>
+      <Cabin>{name}</Cabin>
 
       <Stacked>
-        <span>{guestName}</span>
+        <span>{fullName}</span>
         <span>{email}</span>
       </Stacked>
 
       <Stacked>
         <span>
-          {isToday(new Date(startDate))
-            ? "Today"
-            : formatDistanceFromNow(startDate)}{" "}
+          {isToday(new Date()) ? "Today" : formatDistanceFromNow(startDate)}{" "}
           &rarr; {numNights} night stay
         </span>
         <span>
@@ -98,11 +90,11 @@ function BookingRow({
 
       <Modal>
         <Menus.Menu>
-          <Menus.Toggle id={bookingId} />
-          <Menus.List id={bookingId}>
+          <Menus.Toggle id={id} />
+          <Menus.List id={id}>
             <Menus.Button
               icon={<HiEye />}
-              onClick={() => navigate(`/bookings/${bookingId}`)}
+              onClick={() => navigate(`/bookings/${id}`)}
             >
               See Details
             </Menus.Button>
@@ -110,7 +102,7 @@ function BookingRow({
               <Menus.Button
                 icon={<HiArrowUpOnSquare />}
                 onClick={() => {
-                  navigate(`/checkin/${bookingId}`);
+                  navigate(`/checkin/${id}`);
                 }}
               >
                 Check In
@@ -119,7 +111,7 @@ function BookingRow({
             {status === "checked-in" && (
               <Menus.Button
                 icon={<HiArrowDownOnSquare />}
-                onClick={() => checkout(bookingId)}
+                onClick={() => checkout(id)}
                 disabled={isCheckingOut}
               >
                 Check Out
@@ -134,7 +126,7 @@ function BookingRow({
           <ConfirmDelete
             resourceName="booking"
             disabled={isDeleting}
-            onConfirm={() => deleteBooking(bookingId)}
+            onConfirm={() => deleteBooking(id)}
           />
         </Modal.Window>
       </Modal>
