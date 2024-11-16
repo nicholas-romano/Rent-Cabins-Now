@@ -1,17 +1,14 @@
 import styled from "styled-components";
 import { useSettings } from "../settings/useSettings";
 import Button from "../../ui/Button";
-import { useMoveBack } from "../../hooks/useMoveBack";
 import { useNavigate } from "react-router-dom";
 import FormRow from "../../ui/FormRow";
 import {
-  formatCurrency,
   getCurrentDateTime,
   getDate,
   getLengthOfStay,
   getUTCDate,
 } from "../../utils/helpers";
-import Input from "../../ui/Input";
 import Checkbox from "../../ui/Checkbox";
 import Textarea from "../../ui/Textarea";
 import { useEffect, useState } from "react";
@@ -55,7 +52,6 @@ function NewBookingSummary({ searchCriteria, selectedCabin }) {
     } = {},
   } = useSettings();
   const navigate = useNavigate();
-  const moveBack = useMoveBack();
 
   const { fullName, email, numGuests, startDate, endDate } = searchCriteria;
 

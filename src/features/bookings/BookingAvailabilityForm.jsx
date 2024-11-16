@@ -3,12 +3,10 @@ import Spinner from "../../ui/Spinner";
 import CabinRow from "../cabins/CabinRow";
 import Table from "../../ui/Table";
 import Menus from "../../ui/Menus";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import Empty from "../../ui/Empty";
 import { getDate } from "../../utils/helpers";
-import { useState } from "react";
 import Button from "../../ui/Button";
-import { useMoveBack } from "../../hooks/useMoveBack";
 
 function BookingAvailabilityForm({
   searchCriteria,
@@ -18,8 +16,6 @@ function BookingAvailabilityForm({
   setSelectedCabin,
 }) {
   const { isLoading, error, cabins } = useAvailableCabins(searchCriteria);
-
-  const navigate = useNavigate();
 
   const select = true;
 
