@@ -59,7 +59,8 @@ function BookingAvailabilityForm({
   return (
     <div>
       <h3>
-        Select one available cabin from the list below based on your criteria:
+        Select one available cabin from the list below based on your search
+        criteria:
       </h3>
 
       <p>
@@ -75,7 +76,7 @@ function BookingAvailabilityForm({
             <div>Image</div>
             <div>Cabin</div>
             <div>Capacity</div>
-            <div>Price</div>
+            <div>Cost Per Day</div>
             <div>Discount</div>
           </Table.Header>
           <Table.Body

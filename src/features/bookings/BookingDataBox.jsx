@@ -118,6 +118,8 @@ function BookingDataBox({ booking }) {
     cabins: { name: cabinName },
   } = booking;
 
+  console.log("booking: ", booking);
+
   return (
     <StyledBookingDataBox>
       <Header>
@@ -164,7 +166,9 @@ function BookingDataBox({ booking }) {
             {formatCurrency(totalPrice)}
 
             {hasBreakfast &&
-              ` (${formatCurrency(cabinPrice)} cabin + ${formatCurrency(
+              ` (Cost per night: ${formatCurrency(
+                cabinPrice
+              )} X ${numNights} nights + ${formatCurrency(
                 extrasPrice
               )} breakfast)`}
           </DataItem>

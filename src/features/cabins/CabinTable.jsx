@@ -52,7 +52,7 @@ function CabinTable() {
           <div></div>
           <div>Cabin</div>
           <div>Capacity</div>
-          <div>Price</div>
+          <div>Cost Per Day</div>
           <div>Discount</div>
           <div></div>
         </Table.Header>

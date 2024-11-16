@@ -18,8 +18,6 @@ export async function getAvailableCabins(numGuests, startDate, endDate) {
     .select("*")
     .gte("maxCapacity", numGuests);
 
-  //console.log("maxCapacityCabins ", maxCapacityCabins);
-
   let availableCabinsList = [];
 
   for (let i = 0; i < maxCapacityCabins.length; i++) {
@@ -27,7 +25,6 @@ export async function getAvailableCabins(numGuests, startDate, endDate) {
 
     let cabinAvailable = true;
 
-    //console.log("id: ", maxCapacityCabins[i].id);
     const { data: cabinIdList, error: cabinIdError } = await supabase
       .from("bookings")
       .select("*")
@@ -51,8 +48,6 @@ export async function getAvailableCabins(numGuests, startDate, endDate) {
     if (cabinAvailable === true) {
       availableCabinsList.push(maxCapacityCabins[i]);
     }
-
-    //console.log("cabinIdList ", cabinIdList);
   }
 
   if (maxCapacityError) {
@@ -64,7 +59,6 @@ export async function getAvailableCabins(numGuests, startDate, endDate) {
 }
 
 export async function createEditCabin(newCabin, id) {
-  //console.log(newCabin, id);
   const hasImagePath = newCabin.image?.startsWith?.(supabaseUrl);
 
   const imageName = `${Math.random()}-${newCabin.image.name}`.replaceAll(
@@ -76,8 +70,6 @@ export async function createEditCabin(newCabin, id) {
     ? newCabin.image
     : `${supabaseUrl}/storage/v1/object/public/cabin-images/${imageName}`;
   //https://ruginlzgppebkuamplch.supabase.co/storage/v1/object/public/cabin-images/cabin-001.jpg
-
-  //console.log("imagePath ", imagePath);
 
   // 1. Create Cabin
   let query = supabase.from("cabins");
