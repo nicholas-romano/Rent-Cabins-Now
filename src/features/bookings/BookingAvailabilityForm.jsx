@@ -3,10 +3,15 @@ import Spinner from "../../ui/Spinner";
 import CabinRow from "../cabins/CabinRow";
 import Table from "../../ui/Table";
 import Menus from "../../ui/Menus";
-import { useSearchParams } from "react-router-dom";
+import { Form, useSearchParams } from "react-router-dom";
 import Empty from "../../ui/Empty";
 import { getDate } from "../../utils/helpers";
 import Button from "../../ui/Button";
+import Section from "../../ui/Section";
+import H3 from "../../ui/H3";
+import P from "../../ui/P";
+import ButtonGroup from "antd/es/button/button-group";
+import FormRow from "../../ui/FormRow";
 
 function BookingAvailabilityForm({
   searchCriteria,
@@ -53,17 +58,26 @@ function BookingAvailabilityForm({
   }
 
   return (
-    <div>
-      <h3>
-        Select one available cabin from the list below based on your search
-        criteria:
-      </h3>
-
-      <p>
-        <span>Dates: </span>
-        {getDate(searchCriteria.startDate)} - {getDate(searchCriteria.endDate)}
-      </p>
-      <p>Total Guests: {searchCriteria.numGuests}</p>
+    <Section>
+      <H3>Cabins Available</H3>
+      <p>Search Criteria:</p>
+      <div>
+        <p>
+          <span>
+            <b>Dates: </b>
+          </span>
+          <span>
+            {getDate(searchCriteria.startDate)} -{" "}
+            {getDate(searchCriteria.endDate)}
+          </span>
+        </p>
+        <p>
+          <b>Total Guests:</b> {searchCriteria.numGuests}
+        </p>
+      </div>
+      <P>
+        <b>Select one available cabin from the list below:</b>
+      </P>
 
       <Menus>
         <Table columns="0.8fr 1.8fr 2.2fr 1fr 1fr 1fr">
@@ -87,9 +101,8 @@ function BookingAvailabilityForm({
             )}
           />
         </Table>
-
         {selectedCabin && (
-          <div>
+          <FormRow>
             <Button
               variation="secondary"
               onClick={() => showBookingAvailabiltyForm(false)}
@@ -98,10 +111,10 @@ function BookingAvailabilityForm({
               Cancel
             </Button>
             <Button onClick={handleSearchQuery}>Cabin Booking Summary</Button>
-          </div>
+          </FormRow>
         )}
       </Menus>
-    </div>
+    </Section>
   );
 }
 

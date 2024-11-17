@@ -8,6 +8,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BookingAvailabilityForm from "./BookingAvailabilityForm";
 import NewBookingSummary from "./NewBookingSummary";
+import H1 from "../../ui/H1";
 
 function CreateBookingForm() {
   const [searchCriteria, setSearchCriteria] = useState({});
@@ -45,6 +46,7 @@ function CreateBookingForm() {
         />
       ) : (
         <>
+          <H1>Create New Booking</H1>
           <Form onSubmit={handleSubmit(onSubmit)}>
             <FormRow label="Name" error={errors?.name?.message}>
               <Input

@@ -27,6 +27,7 @@ const StyledHeader = styled(CommonRow)`
   letter-spacing: 0.4px;
   font-weight: 600;
   color: var(--color-grey-600);
+  text-align: left;
 `;
 
 const StyledRow = styled(CommonRow)`
@@ -39,6 +40,7 @@ const StyledRow = styled(CommonRow)`
 
 const StyledBody = styled.section`
   margin: 0.4rem 0;
+  text-align: left;
 `;
 
 const Footer = styled.footer`

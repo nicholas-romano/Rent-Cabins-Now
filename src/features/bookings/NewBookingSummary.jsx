@@ -19,18 +19,8 @@ import Table from "../../ui/Table";
 import GuestBookingInfo from "./GuestBookingInfo";
 import CabinBookingSummaryRow from "./CabinBookingSummaryRow";
 import CabinSelectionDetails from "./CabinSelectionDetails";
-
-const Section = styled.div`
-  margin-top: 30px;
-  margin-bottom: 30px;
-  background-color: #ddd;
-  padding: 15px;
-  border-radius: 10px;
-`;
-
-const H3 = styled.h3`
-  margin-bottom: 20px;
-`;
+import Section from "../../ui/Section";
+import H3 from "../../ui/H3";
 
 function NewBookingSummary({ searchCriteria, selectedCabin }) {
   const { isCreating: isCreatingGuest, createGuest } = useCreateGuest();
@@ -168,7 +158,7 @@ function NewBookingSummary({ searchCriteria, selectedCabin }) {
 
   return (
     <form onSubmit={onSubmit}>
-      <h1>Create Booking</h1>
+      <h1>Create New Booking</h1>
       <Section>
         <H3>Guest Info</H3>
         <Table columns="auto auto auto">
