@@ -1,14 +1,13 @@
-import Input from "../../ui/Input";
-import Form from "../../ui/Form";
-import Button from "../../ui/Button";
-import FormRow from "../../ui/FormRow";
+import Input from "../ui/Input";
+import Form from "../ui/Form";
+import Button from "../ui/Button";
+import FormRow from "../ui/FormRow";
 import { useForm } from "react-hook-form";
-import { DatePickerField } from "../../ui/DatePickerField";
+import { DatePickerField } from "../ui/DatePickerField";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import BookingAvailabilityForm from "./BookingAvailabilityForm";
-import NewBookingSummary from "./NewBookingSummary";
-import H1 from "../../ui/H1";
+import BookingAvailabilityForm from "../features/bookings/BookingAvailabilityForm";
+import NewBookingSummary from "../features/bookings/NewBookingSummary";
+import H1 from "../ui/H1";
 
 function CreateBookingForm() {
   const [searchCriteria, setSearchCriteria] = useState({});
@@ -18,7 +17,6 @@ function CreateBookingForm() {
   const { register, handleSubmit, control, formState } = useForm();
   const [error, setError] = useState("");
   const [resetDates, setResetDates] = useState(false);
-  const navigate = useNavigate();
 
   const { errors } = formState;
 
