@@ -6,8 +6,8 @@ export const DatePickerField = ({
   control,
   name,
   placeholder,
-  resetDates,
-  setResetDates,
+  resetForm,
+  setResetForm,
 }) => {
   const disabledDate = (current) => {
     return current && current < dayjs().endOf("day");
@@ -28,10 +28,10 @@ export const DatePickerField = ({
               ref={field.ref}
               name={field.name}
               onBlur={field.onBlur}
-              value={field.value && !resetDates ? dayjs(field.value) : ""}
+              value={field.value && !resetForm ? dayjs(field.value) : ""}
               disabledDate={disabledDate}
               onChange={(date) => {
-                setResetDates(false);
+                setResetForm(false);
                 field.onChange(date ? date.valueOf() : null);
               }}
               format={"MM/DD/YYYY"}

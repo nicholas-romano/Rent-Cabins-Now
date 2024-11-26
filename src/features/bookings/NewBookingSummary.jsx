@@ -12,9 +12,8 @@ import {
 import Checkbox from "../../ui/Checkbox";
 import Textarea from "../../ui/Textarea";
 import { useEffect, useState } from "react";
-import { useGuest } from "../guests/useGuest";
 import { useCreateGuest } from "../guests/useCreateGuest";
-import { useCreateBooking } from "./useCreateBooking";
+
 import Table from "../../ui/Table";
 import GuestBookingInfo from "./GuestBookingInfo";
 import CabinBookingSummaryRow from "./CabinBookingSummaryRow";
@@ -22,13 +21,32 @@ import CabinSelectionDetails from "./CabinSelectionDetails";
 import Section from "../../ui/Section";
 import H3 from "../../ui/H3";
 
-function NewBookingSummary({ searchCriteria, selectedCabin }) {
+import { useCreateBooking } from "./useCreateBooking";
+import { useEditBooking } from "./useEditBooking";
+import { useUpdateFullName } from "../guests/useUpdateFullName";
+import { useUpdateEmail } from "../guests/useUpdateEmail";
+import { getGuest } from "../../services/apiGuests";
+import { useQuery } from "@tanstack/react-query";
+
+function NewBookingSummary({
+  searchCriteria,
+  selectedCabin,
+  isEditSession,
+  bookingId,
+  oldData,
+}) {
+  const oldEmail = oldData.guests.email;
+  const { data: guest, error } = useQuery({
+    queryKey: ["guests"],
+    queryFn: () => getGuest(oldEmail),
+  });
+
+  const { isEditingFullName, updateFullName } = useUpdateFullName();
+  const { isEditingEmail, updateEmail } = useUpdateEmail();
+
   const { isCreating: isCreatingGuest, createGuest } = useCreateGuest();
-  const {
-    isLoading: isLoadingGuest,
-    error,
-    guest,
-  } = useGuest(searchCriteria.email);
+  const { isEditing, editBooking } = useEditBooking();
+  const oldFullName = oldData.guests.fullName;
 
   const { isCreating: isCreatingBooking, createBooking } = useCreateBooking();
 
@@ -43,7 +61,15 @@ function NewBookingSummary({ searchCriteria, selectedCabin }) {
   } = useSettings();
   const navigate = useNavigate();
 
-  const { fullName, email, numGuests, startDate, endDate } = searchCriteria;
+  const {
+    fullName,
+    email,
+    numGuests,
+    startDate,
+    endDate,
+    observations,
+    hasBreakfast,
+  } = searchCriteria;
 
   const {
     id: cabinId,
@@ -60,15 +86,13 @@ function NewBookingSummary({ searchCriteria, selectedCabin }) {
   const UTCendDate = getUTCDate(getDate(endDate));
   const numNights = getLengthOfStay(startDate, endDate);
 
-  const [addBreakfast, setAddBreakfast] = useState(false);
-  const [observations, setObservations] = useState(null);
   const [guestBookingInfo, setGuestBookingInfo] = useState([]);
   const [cabinSelectionDetails, setCabinSelectionDetails] = useState([]);
   const [cabinBookingSummary, setCabinBookingSummary] = useState([]);
 
   const cabinPrice = regularPrice - discount;
 
-  const extrasPrice = addBreakfast ? numGuests * breakfastPrice * numNights : 0;
+  const extrasPrice = hasBreakfast ? numGuests * breakfastPrice * numNights : 0;
 
   const totalPrice = numNights * cabinPrice + extrasPrice;
 
@@ -105,28 +129,25 @@ function NewBookingSummary({ searchCriteria, selectedCabin }) {
     totalPrice,
   ]);
 
-  function getCreateGuest() {
-    if (guest.details === "The result contains 0 rows") {
-      const newGuest = {
-        created_at: getCurrentDateTime(),
-        fullName,
-        email,
-      };
+  function createNewGuest() {
+    const newGuest = {
+      created_at: getCurrentDateTime(),
+      fullName,
+      email,
+    };
 
-      createGuest(newGuest, {
-        onSuccess: (data) => {
-          createNewBooking(data);
-        },
-      });
-    } else {
-      createNewBooking();
-    }
+    //Create new guest
+    createGuest(newGuest, {
+      onSuccess: (data) => {
+        createNewBooking(data);
+      },
+    });
   }
 
-  function createNewBooking(newGuest) {
-    const guestId = newGuest ? newGuest.id : guest.id;
-    //Create New Booking
-    const newBooking = {
+  function getNewBookingDataObj(guestData) {
+    const guestId = guestData.id;
+
+    const newBookingObj = {
       created_at: currentDateTime,
       startDate: UTCstartDate,
       endDate: UTCendDate,
@@ -134,7 +155,7 @@ function NewBookingSummary({ searchCriteria, selectedCabin }) {
       cabinPrice: regularPrice,
       totalPrice,
       status: "unconfirmed",
-      hasBreakfast: addBreakfast,
+      hasBreakfast,
       isPaid: false,
       observations,
       cabinId,
@@ -142,8 +163,13 @@ function NewBookingSummary({ searchCriteria, selectedCabin }) {
       numNights: numNights,
       extrasPrice,
     };
+    return newBookingObj;
+  }
 
-    createBooking(newBooking, {
+  function createNewBooking(guestData) {
+    const newBookingData = getNewBookingDataObj(guestData);
+
+    createBooking(newBookingData, {
       onSuccess: (data) => {
         console.log("Booking created successfully.");
         navigate(`/bookings`);
@@ -151,14 +177,68 @@ function NewBookingSummary({ searchCriteria, selectedCabin }) {
     });
   }
 
+  function updateBooking(guestData) {
+    const updatedBookingData = getNewBookingDataObj(guestData);
+
+    editBooking(
+      { updatedBookingData, bookingId },
+      {
+        onSuccess: (data) => {
+          console.log("Booking Successfully edited and saved");
+          navigate(`/bookings`);
+        },
+      }
+    );
+  }
+
   function onSubmit(e) {
     e.preventDefault();
-    getCreateGuest();
+
+    if (isEditSession) {
+      const id = guest.id;
+      //Edit Booking
+      //Check if guest info update:
+      if (oldFullName !== fullName) {
+        const newFullNameData = fullName;
+        updateFullName(
+          { newFullNameData, id },
+          {
+            onSuccess: (data) => {
+              console.log("Full name successfully updated and saved");
+              //navigate(`/bookings`);
+            },
+          }
+        );
+      }
+      if (oldEmail !== email) {
+        const newEmailData = email;
+        updateEmail(
+          { newEmailData, id },
+          {
+            onSuccess: (data) => {
+              console.log("Email successfully updated and saved");
+              //navigate(`/bookings`);
+            },
+          }
+        );
+      }
+      //Update booking with new guest:
+      updateBooking(guest);
+    } else {
+      //Create New Guest and Booking:
+
+      // Add Guest or use existing guest
+      createNewGuest();
+    }
   }
 
   return (
     <form onSubmit={onSubmit}>
-      <h1>Create New Booking</h1>
+      {isEditSession ? (
+        <h1>Edit Booking Summary</h1>
+      ) : (
+        <h1>Create New Booking Summary</h1>
+      )}
       <Section>
         <H3>Guest Info</H3>
         <Table columns="auto auto auto">
@@ -223,18 +303,16 @@ function NewBookingSummary({ searchCriteria, selectedCabin }) {
       <Section>
         <H3>Extras</H3>
         <FormRow>
-          <Checkbox
-            onChange={() => setAddBreakfast(!addBreakfast)}
-            checked={addBreakfast}
-          >
+          <Checkbox disabled={true} checked={hasBreakfast}>
             Add Breakfast for an additional ${breakfastPrice} more per guest per
             day.
           </Checkbox>
           <Textarea
+            readOnly
             type="text"
             id="observations"
-            onChange={(e) => setObservations(e.target.value)}
-            defaultValue=""
+            disabled={true}
+            value={observations}
           />
           <label>
             Tell us anything you think we should know about your upcoming stay
@@ -253,7 +331,11 @@ function NewBookingSummary({ searchCriteria, selectedCabin }) {
         >
           Cancel
         </Button>
-        <Button type="submit">Book Cabin</Button>
+        {isEditSession ? (
+          <Button type="submit">Save Updated Booking</Button>
+        ) : (
+          <Button type="submit">Create New Booking</Button>
+        )}
       </FormRow>
     </form>
   );

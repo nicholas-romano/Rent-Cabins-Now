@@ -14,7 +14,7 @@ export async function getGuests() {
 export async function getGuest(email) {
   const { data, error } = await supabase
     .from("guests")
-    .select("*")
+    .select()
     .eq("email", email)
     .single();
 
@@ -39,5 +39,35 @@ export async function createNewGuest(guest) {
     throw new Error("Guest could not be created");
   }
 
+  return data;
+}
+
+export async function updateNewFullName(fullName, id) {
+  const { data, error } = await supabase
+    .from("guests")
+    .update({ fullName: fullName })
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error(error);
+    throw new Error("Guest full name could not be updated");
+  }
+  return data;
+}
+
+export async function updateNewEmail(email, id) {
+  const { data, error } = await supabase
+    .from("guests")
+    .update({ email: email })
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error(error);
+    throw new Error("Guest email could not be updated");
+  }
   return data;
 }

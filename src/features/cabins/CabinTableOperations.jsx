@@ -1,3 +1,4 @@
+import AddCabin from "./AddCabin";
 import TableOperations from "../../ui/TableOperations";
 import Filter from "../../ui/Filter";
 import SortBy from "../../ui/SortBy";
@@ -5,6 +6,7 @@ import SortBy from "../../ui/SortBy";
 function CabinTableOperations() {
   return (
     <TableOperations>
+      <AddCabin />
       <Filter
         filterField="discount"
         options={[

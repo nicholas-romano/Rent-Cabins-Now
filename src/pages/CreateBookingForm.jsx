@@ -4,21 +4,63 @@ import Button from "../ui/Button";
 import FormRow from "../ui/FormRow";
 import { useForm } from "react-hook-form";
 import { DatePickerField } from "../ui/DatePickerField";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BookingAvailabilityForm from "../features/bookings/BookingAvailabilityForm";
 import NewBookingSummary from "../features/bookings/NewBookingSummary";
 import H1 from "../ui/H1";
+import Checkbox from "../ui/Checkbox";
+import { useLocation } from "react-router-dom";
+import { useSettings } from "../features/settings/useSettings";
+import Textarea from "../ui/Textarea";
 
 function CreateBookingForm() {
-  const [searchCriteria, setSearchCriteria] = useState({});
+  const {
+    isLoading,
+    settings: {
+      minBookingLength,
+      maxBookingLength,
+      maxGuestsPerBooking,
+      breakfastPrice,
+    } = {},
+  } = useSettings();
+
+  const [searchCriteria, setSearchCriteria] = useState();
+
   const [selectedCabin, setSelectedCabin] = useState();
   const [bookingAvailabilityForm, showBookingAvailabiltyForm] = useState(false);
+
   const [newBookingSummary, showNewBookingSummary] = useState(false);
-  const { register, handleSubmit, control, formState } = useForm();
+
   const [error, setError] = useState("");
-  const [resetDates, setResetDates] = useState(false);
+  const [resetForm, setResetForm] = useState(false);
+
+  const location = useLocation();
+  let bookingToEdit = location.state;
+
+  if (bookingToEdit === null) {
+    bookingToEdit = {};
+  }
+
+  const { id: editId, ...editValues } = bookingToEdit;
+  const isEditSession = Boolean(editId);
+
+  const { register, handleSubmit, control, reset, formState } = useForm({
+    defaultValues: isEditSession ? editValues : {},
+  });
 
   const { errors } = formState;
+
+  const [hasBreakfast, setHasBreakfast] = useState(false);
+  const [observations, setObservations] = useState("");
+
+  useEffect(() => {
+    if (searchCriteria) {
+      showBookingAvailabiltyForm(true);
+      setHasBreakfast(isEditSession ? editValues.hasBreakfast : hasBreakfast);
+    } else {
+      showBookingAvailabiltyForm(false);
+    }
+  }, [searchCriteria, editValues, hasBreakfast, isEditSession]);
 
   function onError(errors) {
     console.log("errors: ", errors);
@@ -29,11 +71,19 @@ function CreateBookingForm() {
       setError("Start date must be earlier than end date.");
     } else {
       setError("");
+      showBookingAvailabiltyForm(false);
 
-      setSearchCriteria(data);
-      showBookingAvailabiltyForm(true);
+      const newData = {
+        ...data,
+        hasBreakfast,
+      };
+      setSearchCriteria(newData);
     }
   }
+
+  const checkboxHandler = () => {
+    setHasBreakfast(!hasBreakfast);
+  };
 
   return (
     <>
@@ -41,15 +91,20 @@ function CreateBookingForm() {
         <NewBookingSummary
           searchCriteria={searchCriteria}
           selectedCabin={selectedCabin}
+          isEditSession={isEditSession}
+          bookingId={isEditSession ? bookingToEdit.id : undefined}
+          oldData={bookingToEdit}
         />
       ) : (
         <>
-          <H1>Create New Booking</H1>
+          {isEditSession ? <H1>Edit Booking</H1> : <H1>Create New Booking</H1>}
           <Form onSubmit={handleSubmit(onSubmit)}>
             <FormRow label="Name" error={errors?.name?.message}>
               <Input
                 type="text"
                 id="fullName"
+                name="fullName"
+                defaultValue={isEditSession ? editValues.guests.fullName : ""}
                 {...register("fullName", {
                   required: "This field is required",
                 })}
@@ -59,6 +114,8 @@ function CreateBookingForm() {
               <Input
                 type="email"
                 id="email"
+                name="email"
+                defaultValue={isEditSession ? editValues.guests.email : ""}
                 {...register("email", {
                   required: "This field is required",
                   pattern: {
@@ -68,6 +125,17 @@ function CreateBookingForm() {
                 })}
               />
             </FormRow>
+            {isEditSession ? (
+              <FormRow label="Selected Cabin">
+                <Input
+                  readOnly
+                  disabled={true}
+                  value={editValues.cabins.name}
+                />
+              </FormRow>
+            ) : (
+              ""
+            )}
             <FormRow
               label="Number of Guests"
               error={errors?.numGuests?.message}
@@ -89,8 +157,8 @@ function CreateBookingForm() {
                 control={control}
                 name="startDate"
                 placeholder="Start Date"
-                resetDates={resetDates}
-                setResetDates={setResetDates}
+                resetForm={resetForm}
+                setResetForm={setResetForm}
               />
             </FormRow>
             <FormRow label="End Date">
@@ -98,16 +166,46 @@ function CreateBookingForm() {
                 control={control}
                 name="endDate"
                 placeholder="End Date"
-                resetDates={resetDates}
-                setResetDates={setResetDates}
+                resetForm={resetForm}
+                setResetForm={setResetForm}
               />
+            </FormRow>
+            <FormRow
+              label={`Add Breakfast for an additional $${breakfastPrice} more per guest
+                per day.`}
+            >
+              <Checkbox
+                id="hasBreakfast"
+                name="hasBreakfast"
+                onChange={checkboxHandler}
+                defaultChecked={hasBreakfast}
+              />
+            </FormRow>
+            <FormRow>
+              <Textarea
+                type="text"
+                id="observations"
+                name="observations"
+                onChange={(e) => setObservations(e.target.value)}
+                defaultValue={isEditSession ? editValues.observations : ""}
+                {...register("observations", {
+                  pattern: {
+                    value: /\S+/,
+                    message: "Can only have alphanumeric characters.",
+                  },
+                })}
+              />
+              <label>
+                Tell us anything you think we should know about your upcoming
+                stay in the box to the left.
+              </label>
             </FormRow>
             {error ? <span style={{ color: "#b91c1c" }}>{error}</span> : ""}
             <FormRow>
               <Button
                 variation="secondary"
                 type="reset"
-                onClick={() => setResetDates(true)}
+                onClick={() => setResetForm(true)}
               >
                 Reset Form
               </Button>

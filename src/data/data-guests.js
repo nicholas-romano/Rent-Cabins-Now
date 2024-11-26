@@ -109,10 +109,6 @@ export const guests = [
     email: "carlos@yahoo.com",
   },
   {
-    fullName: "Emma Brown",
-    email: "emma@gmail.com",
-  },
-  {
     fullName: "Juan Hernandez",
     email: "juan@yahoo.com",
   },
