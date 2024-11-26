@@ -35,10 +35,29 @@ function NewBookingSummary({
   bookingId,
   oldData,
 }) {
-  const oldEmail = oldData.guests.email;
+  const {
+    fullName,
+    email,
+    numGuests,
+    startDate,
+    endDate,
+    observations,
+    hasBreakfast,
+  } = searchCriteria;
+
+  let searchEmail;
+  let searchFullName;
+  if (isEditSession) {
+    searchEmail = oldData.guests.email;
+    searchFullName = oldData.guests.fullName;
+  } else {
+    searchEmail = email;
+    searchFullName = fullName;
+  }
+
   const { data: guest, error } = useQuery({
     queryKey: ["guests"],
-    queryFn: () => getGuest(oldEmail),
+    queryFn: () => getGuest(searchEmail),
   });
 
   const { isEditingFullName, updateFullName } = useUpdateFullName();
@@ -46,7 +65,6 @@ function NewBookingSummary({
 
   const { isCreating: isCreatingGuest, createGuest } = useCreateGuest();
   const { isEditing, editBooking } = useEditBooking();
-  const oldFullName = oldData.guests.fullName;
 
   const { isCreating: isCreatingBooking, createBooking } = useCreateBooking();
 
@@ -60,16 +78,6 @@ function NewBookingSummary({
     } = {},
   } = useSettings();
   const navigate = useNavigate();
-
-  const {
-    fullName,
-    email,
-    numGuests,
-    startDate,
-    endDate,
-    observations,
-    hasBreakfast,
-  } = searchCriteria;
 
   const {
     id: cabinId,
@@ -194,41 +202,46 @@ function NewBookingSummary({
   function onSubmit(e) {
     e.preventDefault();
 
+    const id = guest.id;
+
+    //Check if guest info update:
+    if (searchFullName !== fullName) {
+      const newFullNameData = fullName;
+      updateFullName(
+        { newFullNameData, id },
+        {
+          onSuccess: (data) => {
+            console.log("Full name successfully updated and saved");
+            //navigate(`/bookings`);
+          },
+        }
+      );
+    }
+    if (searchEmail !== email) {
+      const newEmailData = email;
+      updateEmail(
+        { newEmailData, id },
+        {
+          onSuccess: (data) => {
+            console.log("Email successfully updated and saved");
+            //navigate(`/bookings`);
+          },
+        }
+      );
+    }
+    //Update booking with new guest:
     if (isEditSession) {
-      const id = guest.id;
-      //Edit Booking
-      //Check if guest info update:
-      if (oldFullName !== fullName) {
-        const newFullNameData = fullName;
-        updateFullName(
-          { newFullNameData, id },
-          {
-            onSuccess: (data) => {
-              console.log("Full name successfully updated and saved");
-              //navigate(`/bookings`);
-            },
-          }
-        );
-      }
-      if (oldEmail !== email) {
-        const newEmailData = email;
-        updateEmail(
-          { newEmailData, id },
-          {
-            onSuccess: (data) => {
-              console.log("Email successfully updated and saved");
-              //navigate(`/bookings`);
-            },
-          }
-        );
-      }
-      //Update booking with new guest:
       updateBooking(guest);
     } else {
       //Create New Guest and Booking:
-
-      // Add Guest or use existing guest
-      createNewGuest();
+      //Check if guest email already exists:
+      if (id) {
+        // If guest already exists, create new booking with guest data
+        createNewBooking(guest);
+      } else {
+        // If guest does not already exist, create a new guest and a new booking
+        createNewGuest();
+      }
     }
   }
 
